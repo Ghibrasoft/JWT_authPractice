@@ -1,45 +1,31 @@
+import { useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom'
-import { useZustandStore } from './zustandStore/ZustandStore';
-import { useEffect, useRef } from 'react';
+import { useZustandStore } from '../zustandStore/ZustandStore';
 
-
-export default function Login() {
+export default function Register() {
     const navigate = useNavigate();
-    const formRef = useRef(null);
-    const { loginUser, authenticated } = useZustandStore();
-
+    const formRef = useRef<HTMLFormElement>(null);
+    const { registerUser } = useZustandStore();
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
         const formData = new FormData(formRef.current!);
-        const userData = Object.fromEntries(formData);
+        const newUser = Object.fromEntries(formData);
         try {
-            await loginUser(userData)  // here I got only ID and TOKEN
-            // const userId = localStorage.getItem("userId");
-            // navigate(`/profile/${userId}`);
+            await registerUser(newUser)
+            formRef.current?.reset();
+            navigate("/login");
         } catch (error) {
-            console.log("Login submit", error);
+            console.log("Register submit", error);
         }
+
     }
-
-    useEffect(() => {
-        if (authenticated) {
-            const userId = localStorage.getItem("userId");
-
-            if (userId) {
-                navigate(`/profile/${userId}`);
-            } else {
-                navigate("/login");
-            }
-        }
-    }, [authenticated])
-
     return (
         <div
             className="flex flex-col justify-center items-center border rounded-md px-16 py-24 gap-3 bg-gray-50">
             <h1 className="text-3xl font-medium text-indigo-500">
-                Sign in
+                Sign up
             </h1>
             <form
                 ref={formRef}
@@ -60,16 +46,16 @@ export default function Login() {
                 <button
                     type="submit"
                     className="px-4 py-1 ring ring-indigo-500 text-indigo-500 rounded-md hover:bg-indigo-500 hover:text-white transition-all">
-                    Log in
+                    Register
                 </button>
             </form >
 
             <div>
-                <span>Not have an account?</span>
+                <span>Already have an account?</span>
                 <button
                     type='button'
                     className='text-indigo-500 ml-1 hover:underline'>
-                    <Link to="/">Register</Link>
+                    <Link to="/login">Log in</Link>
                 </button>
             </div>
         </div>

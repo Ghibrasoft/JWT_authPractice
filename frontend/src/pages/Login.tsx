@@ -1,31 +1,43 @@
-import { useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom'
-import { useZustandStore } from './zustandStore/ZustandStore';
+import { useEffect, useRef } from 'react';
+import { useZustandStore } from '../zustandStore/ZustandStore';
 
-export default function Register() {
+
+export default function Login() {
     const navigate = useNavigate();
-    const formRef = useRef<HTMLFormElement>(null);
-    const { registerUser } = useZustandStore();
+    const formRef = useRef(null);
+    const { loginUser, authenticated } = useZustandStore();
+
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
         const formData = new FormData(formRef.current!);
-        const newUser = Object.fromEntries(formData);
+        const userData = Object.fromEntries(formData);
         try {
-            await registerUser(newUser)
-            formRef.current?.reset();
-            navigate("/login");
+            await loginUser(userData)  // here I got only ID and TOKEN
         } catch (error) {
-            console.log("Register submit", error);
+            console.log("Login submit", error);
         }
-
     }
+
+    useEffect(() => {
+        if (authenticated) {
+            const userId = localStorage.getItem("userId");
+
+            if (userId) {
+                navigate(`/profile/${userId}`);
+            } else {
+                navigate("/login");
+            }
+        }
+    }, [authenticated])
+
     return (
         <div
             className="flex flex-col justify-center items-center border rounded-md px-16 py-24 gap-3 bg-gray-50">
             <h1 className="text-3xl font-medium text-indigo-500">
-                Sign up
+                Sign in
             </h1>
             <form
                 ref={formRef}
@@ -46,16 +58,16 @@ export default function Register() {
                 <button
                     type="submit"
                     className="px-4 py-1 ring ring-indigo-500 text-indigo-500 rounded-md hover:bg-indigo-500 hover:text-white transition-all">
-                    Register
+                    Log in
                 </button>
             </form >
 
             <div>
-                <span>Already have an account?</span>
+                <span>Not have an account?</span>
                 <button
                     type='button'
                     className='text-indigo-500 ml-1 hover:underline'>
-                    <Link to="/login">Log in</Link>
+                    <Link to="/">Register</Link>
                 </button>
             </div>
         </div>
